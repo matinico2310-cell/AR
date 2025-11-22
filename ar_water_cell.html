@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AR: Molécula H₂O y Célula Animal</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#6ee7b7;color-scheme:dark}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, sans-serif;background:linear-gradient(180deg,#071029 0%, #061622 100%);color:white}
+    .app{max-width:980px;margin:18px auto;padding:14px}
+    header{display:flex;align-items:center;gap:12px}
+    h1{font-size:1.25rem;margin:0}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .card{background:rgba(255,255,255,0.03);border-radius:12px;padding:10px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    model-viewer{width:100%;height:360px;background:transparent;border-radius:8px;display:block}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    button, .range{background:#0b1220;color:white;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+    .label{font-size:0.85rem;margin-top:6px}
+    .hotspot{background:var(--accent);color:#022; padding:6px 8px;border-radius:999px;border:0}
+    footer{margin-top:16px;font-size:0.85rem;opacity:0.85}
+    @media (max-width:820px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>AR — Molécula H₂O y Célula Animal</h1>
+    </header>
+
+    <p>Esta página usa <strong>model-viewer</strong>. Abre este archivo desde un servidor (o súbelo a GitHub Pages) y ábrelo con tu celular. Toca <em>AR</em> para ver con la cámara.</p>
+
+    <div class="grid">
+      <!-- Agua -->
+      <section class="card" id="waterCard">
+        <h2>Molécula de Agua (H₂O)</h2>
+        <!-- Reemplaza src por tu glb si deseas otro modelo -->
+        <model-viewer id="waterModel"
+          src="https://modelviewer.dev/shared-assets/models/water-molecule.glb"
+          alt="Molécula de agua"
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          camera-controls
+          touch-action="pan-y"
+          exposure="1"
+          min-field-of-view="20deg"
+          max-field-of-view="120deg"
+          style="background:transparent"
+        >
+          <!-- Hotspot de ejemplo (etiqueta) -->
+          <button slot="hotspot-1" data-position="0m 0.12m 0m" class="hotspot">Oxígeno (O)</button>
+          <button slot="hotspot-2" data-position="0.12m -0.06m 0m" class="hotspot">Hidrógeno (H)</button>
+        </model-viewer>
+
+        <div class="controls">
+          <button onclick="resetModel('waterModel')">Reset</button>
+          <button onclick="rotateModel('waterModel', -15)">Girar -15°</button>
+          <button onclick="rotateModel('waterModel', 15)">Girar +15°</button>
+          <label class="label">Escala <input class="range" id="waterScale" type="range" min="0.2" max="3" step="0.05" value="1" oninput="setScale('waterModel', this.value)"></label>
+        </div>
+        <div class="label">Usa pellizcar para acercar/alejar en la vista 3D. En AR, mueve tu teléfono para reposicionar.</div>
+      </section>
+
+      <!-- Célula Animal -->
+      <section class="card" id="cellCard">
+        <h2>Célula Animal</h2>
+        <model-viewer id="cellModel"
+          src="https://modelviewer.dev/shared-assets/models/animal-cell.glb"
+          alt="Célula animal"
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          camera-controls
+          touch-action="pan-y"
+          exposure="1"
+          min-field-of-view="20deg"
+          max-field-of-view="120deg"
+        >
+          <!-- Hotspots: puedes moverlas ajustando data-position -->
+          <button slot="hotspot-1" data-position="0m 0.6m 0m" class="hotspot">Núcleo</button>
+          <button slot="hotspot-2" data-position="-0.4m 0.2m 0.2m" class="hotspot">Mitocondria</button>
+          <button slot="hotspot-3" data-position="0.4m -0.2m 0.1m" class="hotspot">Membrana</button>
+        </model-viewer>
+
+        <div class="controls">
+          <button onclick="resetModel('cellModel')">Reset</button>
+          <button onclick="rotateModel('cellModel', -20)">Girar -20°</button>
+          <button onclick="rotateModel('cellModel', 20)">Girar +20°</button>
+          <label class="label">Escala <input class="range" id="cellScale" type="range" min="0.2" max="4" step="0.05" value="1" oninput="setScale('cellModel', this.value)"></label>
+        </div>
+        <div class="label">Toca y arrastra para rotar; pellizca para acercar/alejar. En AR, usa los controles nativos y mueve el dispositivo.</div>
+      </section>
+    </div>
+
+    <footer>
+      Consejos para probar en móvil:
+      <ul>
+        <li>Sirve este archivo desde un servidor HTTPS (por ejemplo GitHub Pages o un servidor local con <code>npx http-server</code> y acceso HTTPS) para que AR funcione correctamente.</li>
+        <li>En iOS Quick Look, para usar AR debes proporcionar también una versión <code>.usdz</code> (usa convertidores si la necesitas). Si tu iPhone abre Quick Look, verás un botón <em>AR</em>.</li>
+        <li>Si tu Android soporta Scene Viewer, model-viewer abrirá el modelo en AR automáticamente cuando pulses <em>AR</em>.</li>
+      </ul>
+    </footer>
+  </div>
+
+  <script>
+    // Funciones simples para controlar modelos
+    function setScale(id, value){
+      const mv = document.getElementById(id);
+      mv.setAttribute('scale', `${value} ${value} ${value}`);
+    }
+
+    function resetModel(id){
+      const mv = document.getElementById(id);
+      mv.removeAttribute('camera-orbit');
+      mv.setAttribute('scale','1 1 1');
+      // re-centra la cámara
+      mv.cameraOrbit = null;
+      mv.jumpCameraToGoal();
+    }
+
+    function rotateModel(id, deg){
+      const mv = document.getElementById(id);
+      // leer el current camera-orbit si existe
+      const current = mv.getCameraOrbit();
+      // current = azimuth elevation radius
+      let az = current[0] + (deg * Math.PI/180);
+      mv.cameraOrbit = `${az}rad ${current[1]} ${current[2]}`;
+      mv.jumpCameraToGoal();
+    }
+
+    // Añade listeners a hotspots para mostrar pequeñas tarjetas
+    document.addEventListener('click', (e)=>{
+      if(e.target.classList.contains('hotspot')){
+        const text = e.target.innerText;
+        alert(text); // sencillo: muestra etiqueta. Puedes cambiar por un modal bonito.
+      }
+    });
+  </script>
+</body>
+</html>
